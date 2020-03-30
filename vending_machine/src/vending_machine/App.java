@@ -35,7 +35,7 @@ public class App {
                 try {
                     p = queue.take();
                     TimeUnit.SECONDS.sleep((int) p.getPreparingTime());
-                    System.out.println("Your " + p.getName() + " is Ready");
+                    System.out.println("[Deliver Order] Your " + p.getName() + " is Ready");
                 } catch (InterruptedException ex) {
                     System.out.println(ex);
                 }
@@ -77,7 +77,7 @@ public class App {
     }
     
     public static void process(Product p) {
-        System.out.println("Preparing " + p.getName());
+        System.out.println("[Processing Order] Preparing " + p.getName());
     }
     
 }
