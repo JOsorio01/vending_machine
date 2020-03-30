@@ -21,50 +21,63 @@ public class App {
      */
     public static void main(String[] args) {
         
-        BlockingQueue<Product> queue = new ArrayBlockingQueue<>(6);
+        BlockingQueue<Product> queue = new ArrayBlockingQueue<>(10);
         
-        final Runnable producer = () -> {
+        Product p1 = new Product("Pizza", 3);
+        Product p2 = new Product("HotDog", 2);
+        Product p3 = new Product("Hamburguer", 2);
+        
+        String[] options = {p1.getName(), p2.getName(), p3.getName(), "Exit"};
+        
+        final Runnable vendingMachine = () -> {
             while (true) {
+                Product p;
                 try {
-                    TimeUnit.SECONDS.sleep(1);
-                    queue.put(createProduct());
+                    p = queue.take();
+                    TimeUnit.SECONDS.sleep((int) p.getPreparingTime());
+                    System.out.println("Your " + p.getName() + " is Ready");
                 } catch (InterruptedException ex) {
                     System.out.println(ex);
                 }
             }
         };
-        new Thread(producer).start();
+        new Thread(vendingMachine).start();
         
-        while (true) {
-            int reply = JOptionPane.showConfirmDialog(null, "Order more?",
-                    "Title", JOptionPane.YES_OPTION);
-            if (reply == JOptionPane.YES_OPTION) {
+        final Runnable consumer = () -> {
+            while (true) {
+                Product p = new Product();
                 try {
-                    if (!queue.isEmpty()) {
-                        Product p = queue.take();
-                        process(p);
-                    } else {
-                        System.out.println("No products!");
+                    int option = JOptionPane.showOptionDialog(
+                            null, "Select what do you want to order", "Order",
+                            JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE,
+                            null, options, options[0]);
+                    switch (option) {
+                        case 0:
+                            p = p1;
+                            break;
+                        case 1:
+                            p = p2;
+                            break;
+                        case 2:
+                            p = p3;
+                            break;
+                        default:
+                            System.exit(0);
+                            break;
                     }
-                    
+                    process(p);
+                    queue.put(p);
                 } catch (InterruptedException ex) {
                     System.out.println(ex);
                 }
             }
-            else {
-               JOptionPane.showMessageDialog(null, "GOODBYE");
-               System.exit(0);
-            }
-        }
+        };
+        new Thread(consumer).start();
 
     }
     
-    public static Product createProduct() {
-        return new Product();
-    }
-    
     public static void process(Product p) {
-        System.out.println(p);
+        System.out.println("Preparing " + p.getName());
     }
     
 }
